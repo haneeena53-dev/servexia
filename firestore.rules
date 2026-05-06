@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function currentUserDocPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.email == "mohamedabdouooo28@gmail.com" ||
+        (exists(currentUserDocPath()) && get(currentUserDocPath()).data.role == "admin")
+      );
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if isAdmin() || isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update, delete: if isAdmin() || isOwner(userId);
+    }
+
+    match /providers/{providerId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /bookings/{bookingId} {
+      allow create: if signedIn() && request.auth.uid == request.resource.data.userId;
+      allow read, update, delete: if isAdmin() || (signedIn() && (
+        request.auth.uid == resource.data.userId ||
+        request.auth.uid == resource.data.providerId
+      ));
+    }
+
+    match /chats/{chatId} {
+      allow create: if signedIn() && request.auth.uid in request.resource.data.participants;
+      allow read, update, delete: if isAdmin() || (signedIn() && request.auth.uid in resource.data.participants);
+    }
+
+    match /messages/{messageId} {
+      allow create: if signedIn() && request.auth.uid == request.resource.data.senderId;
+      allow read, update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.senderId);
+    }
+
+    match /notifications/{notificationId} {
+      allow create: if isAdmin() || (signedIn() && request.auth.uid == request.resource.data.userId);
+      allow read, update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
+    }
+
+    match /favorites/{favoriteId} {
+      allow create: if signedIn() && request.auth.uid == request.resource.data.userId;
+      allow read, update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn() && request.auth.uid == request.resource.data.reporterId;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /auditLogs/{auditLogId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

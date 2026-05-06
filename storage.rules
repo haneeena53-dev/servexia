@@ -1,0 +1,28 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.email == "mohamedabdouooo28@gmail.com";
+    }
+
+    // Provider-owned profile and gallery uploads
+    match /providers/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin() || (signedIn() && request.auth.uid == userId);
+    }
+
+    // Public app assets (read-only)
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
