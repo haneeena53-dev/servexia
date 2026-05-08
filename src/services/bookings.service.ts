@@ -66,6 +66,9 @@ export const bookingsService = {
         .map(d => ({ id: d.id, ...d.data() } as Booking))
         .sort((left, right) => toMillis((right as Booking).date) - toMillis((left as Booking).date));
       callback(bookings);
+    }, (error) => {
+      console.error("[bookingsService] subscribeToUserBookings error:", error.code, error.message);
+      callback([]);
     });
   },
 
@@ -86,6 +89,9 @@ export const bookingsService = {
         .map(d => ({ id: d.id, ...d.data() } as Booking))
         .sort((left, right) => toMillis((right as Booking).date) - toMillis((left as Booking).date));
       callback(bookings);
+    }, (error) => {
+      console.error("[bookingsService] subscribeToProviderBookings error:", error.code, error.message);
+      callback([]);
     });
   },
 

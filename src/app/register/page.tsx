@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, Loader2, User, Briefcase } from "lucide-react";
+import { MapPin, Loader2, User, Briefcase, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { AppRole } from "@/types";
@@ -16,11 +16,12 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signUp } = useAuth();
-  
+
   const initialRole = (searchParams.get("role") as AppRole) || "user";
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [role, setRole] = useState<AppRole>(initialRole);
   const [loading, setLoading] = useState(false);
@@ -31,214 +32,174 @@ function RegisterForm() {
       toast.error("Please fill in all fields");
       return;
     }
-
     if (password.length < 6) {
-      toast.error("Passwords must be at least 6 characters.");
+      toast.error("Password must be at least 6 characters");
       return;
     }
-
     setLoading(true);
     try {
       await signUp(email, password, displayName, role);
-      toast.success(
-        role === "provider" 
-          ? "Account created! Now set up your provider profile." 
-          : "Welcome to Servexia!"
-      );
-      
-      if (role === "provider") {
-        router.push("/provider/profile-editor");
-      } else {
-        router.push("/dashboard");
-      }
+      toast.success(role === "provider" ? "Account created! Set up your profile." : "Welcome to Servexia!");
+      router.push(role === "provider" ? "/provider/profile-editor" : "/dashboard");
     } catch (error: any) {
-      console.error(error);
       toast.error(error.message || "Failed to create account");
     } finally {
       setLoading(false);
     }
   };
 
-  // Amazon standard input styling
-  const inputBaseClass = "w-full h-[31px] px-3 py-1 border border-[#a6a6a6] rounded-[3px] focus-visible:ring-0 focus-visible:outline-none focus-visible:border-[#e77600] focus-visible:shadow-[0_0_3px_2px_rgba(228,121,17,0.5)] text-[13px]";
-  const labelBaseClass = "block text-[13px] font-bold text-[#111] mb-1";
+  const inputClass = "h-11 rounded-xl border-slate-200 focus-visible:ring-[oklch(0.48_0.14_195)] focus-visible:border-[oklch(0.48_0.14_195)] bg-slate-50";
 
   return (
-    <div className="w-full max-w-[350px] mx-auto flex flex-col items-center z-10">
-      
-      {/* Amazon-style Minimal Logo */}
-      <Link href="/" className="mb-6 flex items-center gap-1 group">
-        <MapPin className="h-8 w-8 text-[#0f1111]" />
-        <span className="text-[28px] font-bold tracking-tighter text-[#0f1111]">
-          Servexia
-        </span>
+    <div className="w-full max-w-sm mx-auto">
+      {/* Logo */}
+      <Link href="/" className="flex items-center justify-center gap-2.5 mb-8">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[oklch(0.48_0.14_195)] to-[oklch(0.6_0.14_188)] flex items-center justify-center shadow-lg">
+          <MapPin className="h-5 w-5 text-white" />
+        </div>
+        <span className="text-2xl font-bold tracking-tight text-slate-900">Servexia</span>
       </Link>
 
-      {/* Register Card */}
-      <div className="w-full border border-[#ddd] rounded-[8px] p-6 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.02)] text-[#0f1111]">
-        <h1 className="text-[28px] font-normal mb-4 leading-tight">Create account</h1>
+      {/* Card */}
+      <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 p-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">Create account</h1>
+          <p className="text-slate-500 text-sm mt-1">Join thousands of users on Servexia</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          
-          {/* Amazon-style Role Selector (Looks like shipping/payment options) */}
-          <div className="space-y-2 mb-2">
-            <Label className={labelBaseClass}>I am a...</Label>
+          {/* Role selector */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-slate-700">I am a...</Label>
             <div className="grid grid-cols-2 gap-3">
-              <div
-                onClick={() => setRole("user")}
-                className={cn(
-                  "relative flex items-center p-2 border rounded-[8px] cursor-pointer transition-colors",
-                  role === "user" 
-                    ? "border-[#e77600] bg-[#fcf5ee]" 
-                    : "border-[#d5d9d9] hover:bg-gray-50"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="radio" 
-                    checked={role === "user"} 
-                    readOnly
-                    className="accent-[#e77600] h-4 w-4"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-[13px] font-bold text-[#0f1111] flex items-center gap-1">
-                      <User className="h-3.5 w-3.5" /> Customer
-                    </span>
+              {[
+                { value: "user" as AppRole, label: "Customer", Icon: User, desc: "Find services" },
+                { value: "provider" as AppRole, label: "Provider", Icon: Briefcase, desc: "Offer services" },
+              ].map(({ value, label, Icon, desc }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setRole(value)}
+                  className={cn(
+                    "flex flex-col items-start gap-1 p-3 rounded-xl border-2 transition-all text-left",
+                    role === value
+                      ? "border-[oklch(0.48_0.14_195)] bg-[oklch(0.48_0.14_195)]/5"
+                      : "border-slate-200 hover:border-slate-300 bg-slate-50"
+                  )}
+                >
+                  <div className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center",
+                    role === value ? "bg-[oklch(0.48_0.14_195)] text-white" : "bg-slate-200 text-slate-600"
+                  )}>
+                    <Icon className="h-4 w-4" />
                   </div>
-                </div>
-              </div>
-
-              <div
-                onClick={() => setRole("provider")}
-                className={cn(
-                  "relative flex items-center p-2 border rounded-[8px] cursor-pointer transition-colors",
-                  role === "provider" 
-                    ? "border-[#e77600] bg-[#fcf5ee]" 
-                    : "border-[#d5d9d9] hover:bg-gray-50"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="radio" 
-                    checked={role === "provider"} 
-                    readOnly
-                    className="accent-[#e77600] h-4 w-4"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-[13px] font-bold text-[#0f1111] flex items-center gap-1">
-                      <Briefcase className="h-3.5 w-3.5" /> Provider
-                    </span>
-                  </div>
-                </div>
-              </div>
+                  <span className={cn("text-sm font-semibold", role === value ? "text-[oklch(0.48_0.14_195)]" : "text-slate-700")}>
+                    {label}
+                  </span>
+                  <span className="text-xs text-slate-400">{desc}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="displayName" className={labelBaseClass}>Your name</Label>
-            <Input 
-              id="displayName" 
-              type="text" 
-              placeholder="First and last name"
-              className={inputBaseClass}
+          <div className="space-y-1.5">
+            <Label htmlFor="displayName" className="text-sm font-semibold text-slate-700">Full name</Label>
+            <Input
+              id="displayName"
+              type="text"
+              placeholder="Mohamed Ahmed"
+              className={inputClass}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
             />
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="email" className={labelBaseClass}>Email</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              className={inputBaseClass}
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-sm font-semibold text-slate-700">Email address</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              className={inputClass}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="password" className={labelBaseClass}>Password</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              placeholder="At least 6 characters"
-              className={inputBaseClass}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <p className="text-[12px] text-[#0f1111] mt-1 flex items-center">
-              <span className="text-[#007185] mr-1 text-base leading-none">i</span> 
-              Passwords must be at least 6 characters.
-            </p>
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-sm font-semibold text-slate-700">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="At least 6 characters"
+                className={cn(inputClass, "pr-10")}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full mt-4 bg-[#ffd814] hover:bg-[#f7ca00] text-[#0f1111] border border-[#fcd200] rounded-[8px] h-[34px] text-[13px] font-normal shadow-sm transition-colors" 
+
+          <Button
+            type="submit"
+            className="w-full h-11 rounded-xl bg-[oklch(0.48_0.14_195)] hover:bg-[oklch(0.42_0.14_195)] text-white font-semibold shadow-lg shadow-[oklch(0.48_0.14_195)]/20 transition-all mt-2"
             disabled={loading}
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Continue
+            Create account
           </Button>
 
-          <div className="mt-4 text-[12px] text-[#0f1111] leading-relaxed">
-            By creating an account, you agree to Servexia's{" "}
-            <Link href="#" className="text-[#007185] hover:text-[#c40000] hover:underline">
-              Conditions of Use
-            </Link>{" "}
-            and{" "}
-            <Link href="#" className="text-[#007185] hover:text-[#c40000] hover:underline">
-              Privacy Notice
-            </Link>.
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-[#e7e7e7]">
-            <p className="text-[13px] text-[#0f1111] font-bold">
-              Already have an account?{" "}
-              <Link href="/login" className="text-[#007185] hover:text-[#c40000] hover:underline font-normal flex items-center inline-flex">
-                Sign in <span className="text-[10px] ml-1">▶</span>
-              </Link>
-            </p>
-          </div>
+          <p className="text-center text-xs text-slate-400 leading-relaxed">
+            By creating an account, you agree to our{" "}
+            <Link href="#" className="text-[oklch(0.48_0.14_195)] hover:underline">Terms</Link>
+            {" "}and{" "}
+            <Link href="#" className="text-[oklch(0.48_0.14_195)] hover:underline">Privacy Policy</Link>
+          </p>
         </form>
       </div>
 
-      {/* Minimal Footer for Auth Pages */}
-      <div className="mt-10 border-t border-[#e7e7e7] pt-8 w-full max-w-[400px] flex flex-col items-center justify-center gap-2">
-        <div className="flex gap-6 text-[11px] text-[#007185]">
-          <Link href="#" className="hover:text-[#c40000] hover:underline">Conditions of Use</Link>
-          <Link href="#" className="hover:text-[#c40000] hover:underline">Privacy Notice</Link>
-          <Link href="#" className="hover:text-[#c40000] hover:underline">Help</Link>
-        </div>
-        <p className="text-[11px] text-[#565959]">
-          © {new Date().getFullYear()}, Servexia.com, Inc. or its affiliates
-        </p>
-      </div>
+      <p className="text-center text-sm text-slate-500 mt-6">
+        Already have an account?{" "}
+        <Link href="/login" className="font-semibold text-[oklch(0.48_0.14_195)] hover:underline">
+          Sign in
+        </Link>
+      </p>
     </div>
   );
 }
 
 export default function RegisterPage() {
   return (
-    // Clean white background like Amazon
-    <div className="min-h-screen flex flex-col bg-white">
-      <main className="flex-grow flex items-start justify-center p-4 pt-8 pb-24">
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[oklch(0.48_0.14_195)]/5 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-[oklch(0.72_0.18_55)]/5 blur-3xl" />
+      </div>
+
+      <main className="flex-grow flex items-center justify-center px-4 py-12 relative">
         <Suspense fallback={
-          <div className="w-full max-w-[350px] p-8 animate-pulse bg-white border border-gray-200 rounded-[8px]">
-            <div className="h-8 w-24 bg-gray-200 mx-auto mb-6 rounded" />
-            <div className="h-8 w-40 bg-gray-200 mb-6 rounded" />
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="h-10 bg-gray-200 rounded" />
-              <div className="h-10 bg-gray-200 rounded" />
-            </div>
-            <div className="space-y-4">
-              <div className="h-10 w-full bg-gray-200 rounded" />
-              <div className="h-10 w-full bg-gray-200 rounded" />
-              <div className="h-10 w-full bg-gray-200 rounded" />
+          <div className="w-full max-w-sm">
+            <div className="h-12 w-32 bg-slate-200 mx-auto mb-8 rounded-xl animate-pulse" />
+            <div className="bg-white rounded-3xl p-8 space-y-4 shadow-xl border border-slate-100">
+              <div className="h-6 w-40 bg-slate-200 rounded animate-pulse" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="h-20 bg-slate-100 rounded-xl animate-pulse" />
+                <div className="h-20 bg-slate-100 rounded-xl animate-pulse" />
+              </div>
+              <div className="h-11 bg-slate-100 rounded-xl animate-pulse" />
+              <div className="h-11 bg-slate-100 rounded-xl animate-pulse" />
+              <div className="h-11 bg-slate-100 rounded-xl animate-pulse" />
+              <div className="h-11 bg-[oklch(0.48_0.14_195)]/10 rounded-xl animate-pulse" />
             </div>
           </div>
         }>

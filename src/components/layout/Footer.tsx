@@ -6,129 +6,107 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
-    <footer className="w-full text-white text-[14px]">
-      {/* --- Back to Top Bar --- */}
-      <div 
-        onClick={scrollToTop}
-        className="w-full bg-[#37475a] hover:bg-[#485769] py-4 text-center cursor-pointer transition-colors"
-      >
-        <span className="text-[13px] font-medium">Back to top</span>
-      </div>
-
-      {/* --- Main Links Section --- */}
-      <div className="bg-[#232f3e] w-full py-10">
-        <div className="mx-auto max-w-[1000px] px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
-            
-            {/* Column 1: Get to Know Us */}
-            <div>
-              <h3 className="font-bold mb-3 text-base">Get to Know Us</h3>
-              <ul className="space-y-2.5">
-                <li><Link href="/#how" className="text-[#dddddd] hover:underline text-sm">How Servexia Works</Link></li>
-                <li><Link href="/#categories" className="text-[#dddddd] hover:underline text-sm">Service Categories</Link></li>
-                <li><Link href="/map" className="text-[#dddddd] hover:underline text-sm">Smart Map Features</Link></li>
-                <li><Link href="#" className="text-[#dddddd] hover:underline text-sm">About Servexia</Link></li>
-              </ul>
-            </div>
-
-            {/* Column 2: Make Money with Us (Providers) */}
-            <div>
-              <h3 className="font-bold mb-3 text-base">Make Money with Us</h3>
-              <ul className="space-y-2.5">
-                <li><Link href="/register?role=provider" className="text-[#dddddd] hover:underline text-sm">Join as Provider</Link></li>
-                <li><Link href="/login" className="text-[#dddddd] hover:underline text-sm">Provider Login</Link></li>
-                <li><Link href="#" className="text-[#dddddd] hover:underline text-sm">Resource Center</Link></li>
-                <li><Link href="#" className="text-[#dddddd] hover:underline text-sm">Protect and build your brand</Link></li>
-              </ul>
-            </div>
-
-            {/* Column 3: Connect with Us */}
-            <div>
-              <h3 className="font-bold mb-3 text-base">Connect with Us</h3>
-              <ul className="space-y-2.5">
-                <li>
-                  <a href="#" className="text-[#dddddd] hover:underline text-sm flex items-center gap-2">
-                    <Globe className="h-4 w-4" /> Facebook
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-[#dddddd] hover:underline text-sm flex items-center gap-2">
-                    <Send className="h-4 w-4" /> Twitter
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-[#dddddd] hover:underline text-sm flex items-center gap-2">
-                    <Camera className="h-4 w-4" /> Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-[#dddddd] hover:underline text-sm flex items-center gap-2">
-                    <Briefcase className="h-4 w-4" /> LinkedIn
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Column 4: Newsletter (Adapted for Amazon style) */}
-            <div>
-              <h3 className="font-bold mb-3 text-base">Stay Updated</h3>
-              <p className="text-[#dddddd] text-sm mb-3">
-                Get the latest updates on new features and local providers.
-              </p>
-              <form className="flex flex-col gap-2">
-                <Input 
-                  type="email" 
-                  placeholder="Email address" 
-                  className="bg-white text-black border-gray-300 rounded-[3px] focus-visible:ring-[#f08804]"
-                />
-                <Button 
-                  type="button" 
-                  className="bg-[#ffd814] hover:bg-[#f7ca00] text-black border border-[#fcd200] rounded-[3px] font-normal"
-                >
-                  Subscribe
-                </Button>
-              </form>
+    <footer className="w-full bg-[#0f172a] text-white">
+      {/* Main footer content */}
+      <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
+          {/* Brand column */}
+          <div className="lg:col-span-2">
+            <Link href="/" className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center shadow-md">
+                <MapPin className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-bold tracking-tight">Servexia</span>
+            </Link>
+            <p className="text-slate-400 text-sm leading-relaxed max-w-xs mb-6">
+              Discover trusted local service providers on an interactive map. Book instantly, chat in real-time, and read verified reviews.
+            </p>
+            <div className="flex gap-3">
+              {[
+                { icon: Globe, label: "Facebook" },
+                { icon: Send, label: "Twitter" },
+                { icon: Camera, label: "Instagram" },
+                { icon: Briefcase, label: "LinkedIn" },
+              ].map(({ icon: Icon, label }) => (
+                <a key={label} href="#" title={label}
+                  className="w-9 h-9 rounded-xl bg-white/10 hover:bg-accent transition-colors flex items-center justify-center">
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* --- Logo & Region Selector --- */}
-        <div className="mt-10 border-t border-[#3a4553] pt-8 flex flex-col md:flex-row items-center justify-center gap-6">
-          <Link href="/" className="flex items-center gap-1 group">
-            <MapPin className="h-7 w-7 text-white" />
-            <span className="text-2xl font-bold tracking-tight">Servexia</span>
-          </Link>
-          
-          <div className="flex gap-2 text-[13px]">
-            <div className="border border-[#848688] rounded-[3px] px-3 py-1.5 flex items-center gap-2 cursor-pointer hover:border-white transition-colors">
-              <Globe className="h-4 w-4" /> English
-            </div>
-            <div className="border border-[#848688] rounded-[3px] px-3 py-1.5 flex items-center gap-2 cursor-pointer hover:border-white transition-colors">
-              <span className="font-bold">EGP</span> - Egyptian Pound
-            </div>
-            <div className="border border-[#848688] rounded-[3px] px-3 py-1.5 flex items-center gap-2 cursor-pointer hover:border-white transition-colors">
-              <MapPin className="h-4 w-4" /> Egypt
-            </div>
+          {/* Links columns */}
+          <div>
+            <h3 className="font-semibold text-sm mb-4 text-white">Platform</h3>
+            <ul className="space-y-3">
+              {[
+                { label: "How it works", href: "/#how" },
+                { label: "Service categories", href: "/#categories" },
+                { label: "Smart map", href: "/map" },
+                { label: "About Servexia", href: "#" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="text-slate-400 hover:text-white text-sm transition-colors">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-sm mb-4 text-white">For Providers</h3>
+            <ul className="space-y-3">
+              {[
+                { label: "Join as provider", href: "/register?role=provider" },
+                { label: "Provider login", href: "/login" },
+                { label: "Resource center", href: "#" },
+                { label: "Grow your brand", href: "#" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="text-slate-400 hover:text-white text-sm transition-colors">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h3 className="font-semibold text-sm mb-4 text-white">Stay updated</h3>
+            <p className="text-slate-400 text-sm mb-4">
+              Get the latest updates on new features and local providers.
+            </p>
+            <form className="flex flex-col gap-2" onSubmit={(e) => e.preventDefault()}>
+              <Input
+                type="email"
+                placeholder="your@email.com"
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-accent"
+              />
+              <Button
+                type="submit"
+                className="bg-accent hover:bg-accent/90 text-white rounded-xl font-medium"
+              >
+                Subscribe
+              </Button>
+            </form>
           </div>
         </div>
       </div>
 
-      {/* --- Footer Bottom (Legal & Copyright) --- */}
-      <div className="bg-[#131921] w-full py-8 px-4 flex flex-col items-center">
-        <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-[12px] text-[#dddddd] mb-2 font-medium">
-          <Link href="#" className="hover:underline">Conditions of Use</Link>
-          <Link href="#" className="hover:underline">Privacy Notice</Link>
-          <Link href="#" className="hover:underline">Consumer Health Data Privacy Disclosure</Link>
-          <Link href="#" className="hover:underline">Your Ads Privacy Choices</Link>
+      {/* Bottom bar */}
+      <div className="border-t border-white/10">
+        <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+          <p>&copy; {new Date().getFullYear()} Servexia. All rights reserved.</p>
+          <div className="flex gap-6">
+            <Link href="#" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="#" className="hover:text-white transition-colors">Terms</Link>
+            <Link href="#" className="hover:text-white transition-colors">Cookies</Link>
+          </div>
         </div>
-        <p className="text-[12px] text-[#dddddd]">
-          &copy; {new Date().getFullYear()}, Servexia.com, Inc. or its affiliates
-        </p>
       </div>
     </footer>
   );
